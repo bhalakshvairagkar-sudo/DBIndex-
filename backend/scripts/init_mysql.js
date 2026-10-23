@@ -1,12 +1,17 @@
 import mysql from 'mysql2/promise';
 
 async function init() {
-  console.log('Connecting to MySQL 9.7...');
+  const host = process.env.MYSQL_HOST || 'localhost';
+  const port = Number(process.env.MYSQL_PORT) || 3306;
+  const user = process.env.MYSQL_USER || 'root';
+  const password = process.env.MYSQL_PASSWORD || 'bhalaksha';
+
+  console.log(`Connecting to MySQL on ${host}:${port} as ${user}...`);
   const conn = await mysql.createConnection({
-    host: 'localhost',
-    port: 3306,
-    user: 'root',
-    password: 'bhalaksha',
+    host,
+    port,
+    user,
+    password,
     multipleStatements: true
   });
 

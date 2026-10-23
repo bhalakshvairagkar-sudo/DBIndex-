@@ -144,7 +144,7 @@ node tests/integration.test.js
 
 ## 5. Docker Deployment
 
-To launch the full stack with Docker Compose:
+To launch the full stack locally with Docker Compose:
 ```bash
 docker-compose up -d --build
 ```
@@ -152,3 +152,16 @@ This starts:
 - `mysql`: MySQL 9.0 container on port 3306
 - `backend`: Node.js API with C++ engine on port 4000
 - `frontend`: React / Nginx container on port 3000
+
+---
+
+## 6. Cloud Deployment on Render (render.com)
+
+DBIndex is pre-configured with a Render Blueprint (`render.yaml`) and multi-stage `Dockerfile`:
+
+1. Go to **[dashboard.render.com](https://dashboard.render.com)**.
+2. Select **New +** $\rightarrow$ **Blueprint**.
+3. Select your repository: `bhalakshvairagkar-sudo/DBIndex-`.
+4. Click **Apply** to deploy the Docker Web Service.
+
+See [DEPLOY_RENDER.md](DEPLOY_RENDER.md) for full cloud database connection guides.

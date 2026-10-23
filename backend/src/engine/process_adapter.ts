@@ -14,7 +14,24 @@ export class EngineProcessAdapter {
   }> = [];
 
   private constructor() {
-    this.binaryPath = path.resolve(process.cwd(), '../engine/bin/indexer_engine.exe');
+    const isWin = process.platform === 'win32';
+    const binaryName = isWin ? 'indexer_engine.exe' : 'indexer_engine';
+
+    if (process.env.ENGINE_PATH && fs.existsSync(process.env.ENGINE_PATH)) {
+      this.binaryPath = path.resolve(process.env.ENGINE_PATH);
+    } else {
+      const candidates = [
+        path.resolve(process.cwd(), '../engine/bin', binaryName),
+        path.resolve(process.cwd(), 'engine/bin', binaryName),
+        path.resolve(process.cwd(), '../engine/bin/indexer_engine.exe'),
+        path.resolve(process.cwd(), '../engine/bin/indexer_engine'),
+        path.resolve(process.cwd(), 'engine/bin/indexer_engine.exe'),
+        path.resolve(process.cwd(), 'engine/bin/indexer_engine')
+      ];
+      this.binaryPath = candidates.find(c => fs.existsSync(c)) || candidates[0];
+    }
+
+    console.log(`[EngineAdapter] Target C++ binary path: ${this.binaryPath} (exists: ${fs.existsSync(this.binaryPath)})`);
     this.ensureProcess();
   }
 

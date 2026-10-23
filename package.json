@@ -1,0 +1,26 @@
+{
+  "name": "dbindex-simulator",
+  "version": "2.0.0",
+  "description": "DBIndex: User-Defined SQL Laboratory & Database Indexing Simulator",
+  "type": "module",
+  "scripts": {
+    "build:engine": "sh -c 'if command -v g++ >/dev/null 2>&1; then mkdir -p engine/bin && g++ -O3 -std=c++17 engine/src/main.cpp -I engine/include -o engine/bin/indexer_engine; else echo \"Skipping C++ engine compilation: g++ not present in environment\"; fi'",
+    "build:frontend": "cd frontend && npm install && npm run build",
+    "build:backend": "cd backend && npm install && npm run build",
+    "build": "npm run build:engine && npm run build:frontend && npm run build:backend",
+    "start": "cd backend && npm start",
+    "test": "cd backend && npm test",
+    "init:mysql": "cd backend && node scripts/init_mysql.js"
+  },
+  "keywords": [
+    "database-indexing",
+    "bplus-tree",
+    "avl-tree",
+    "mysql",
+    "query-optimization",
+    "explain-analyze",
+    "sql-laboratory"
+  ],
+  "author": "Bhalaksha Vairagkar",
+  "license": "MIT"
+}

@@ -1,6 +1,12 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 import apiRouter from './routes/api.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -20,6 +26,22 @@ app.use((req, res, next) => {
 
 // Mount API routes under /api
 app.use('/api', apiRouter);
+
+// Serve frontend static build if available (production full-stack mode)
+const candidateDistPaths = [
+  path.resolve(__dirname, '../../frontend/dist'),
+  path.resolve(process.cwd(), 'frontend/dist'),
+  path.resolve(process.cwd(), '../frontend/dist')
+];
+const distPath = candidateDistPaths.find(p => fs.existsSync(p));
+if (distPath) {
+  console.log(`[Static] Serving frontend SPA from ${distPath}`);
+  app.use(express.static(distPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) return next();
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+}
 
 // Global error handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

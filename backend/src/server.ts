@@ -16,11 +16,11 @@ adapter.ping()
     console.warn('[Server] Engine ping failed:', err.message);
   });
 
-app.listen(PORT, () => {
+app.listen(Number(PORT), '0.0.0.0', () => {
   console.log(`====================================================`);
-  console.log(`DATABASE INDEXING SIMULATOR BACKEND RUNNING`);
+  console.log(`DBINDEX SIMULATOR & SQL LABORATORY RUNNING`);
   console.log(`Port: ${PORT}`);
-  console.log(`URL:  http://localhost:${PORT}`);
-  console.log(`Health: http://localhost:${PORT}/api/health`);
+  console.log(`URL:  http://0.0.0.0:${PORT}`);
+  console.log(`Health: http://0.0.0.0:${PORT}/api/health`);
   console.log(`====================================================`);
 });
