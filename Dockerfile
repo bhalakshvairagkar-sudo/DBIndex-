@@ -30,13 +30,18 @@ COPY backend/ ./
 RUN npm run build
 
 # ===================================================
-# Stage 4: Production Runtime Environment
+# Stage 4: Production Runtime Environment with Embedded MySQL
 # ===================================================
-FROM node:20-slim AS runner
+FROM node:20-bookworm-slim AS runner
 WORKDIR /app
 
-# Install default-mysql-client for database checks / health scripts
-RUN apt-get update && apt-get install -y --no-install-recommends default-mysql-client ca-certificates && rm -rf /var/lib/apt/lists/*
+# Install MariaDB / MySQL server, client and system utilities
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    mariadb-server \
+    mariadb-client \
+    ca-certificates \
+    procps \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy compiled C++ engine binaries
 COPY --from=cpp-builder /app/engine/bin/indexer_engine /app/engine/bin/indexer_engine
@@ -55,12 +60,20 @@ COPY backend/data ./data
 # Copy built frontend assets to be served statically by Express
 COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
 
-# Expose Render standard port
+# Copy entrypoint startup script
+COPY docker-entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Expose Render standard port & default environment
 ENV PORT=10000
 ENV NODE_ENV=production
 ENV ENGINE_PATH=/app/engine/bin/indexer_engine
+ENV MYSQL_HOST=localhost
+ENV MYSQL_PORT=3306
+ENV MYSQL_USER=root
+ENV MYSQL_PASSWORD=bhalaksha
+ENV MYSQL_DATABASE=my_database
 EXPOSE 10000
 
-# Start unified full-stack server
-WORKDIR /app/backend
-CMD ["node", "dist/server.js"]
+# Start embedded database and full-stack application
+ENTRYPOINT ["/entrypoint.sh"]
