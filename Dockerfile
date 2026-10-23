@@ -20,7 +20,17 @@ COPY frontend/ ./
 RUN npm run build
 
 # ===================================================
-# Stage 3: Production Runtime Environment
+# Stage 3: Build Backend TypeScript
+# ===================================================
+FROM node:20-alpine AS backend-builder
+WORKDIR /app/backend
+COPY backend/package*.json ./
+RUN npm install
+COPY backend/ ./
+RUN npm run build
+
+# ===================================================
+# Stage 4: Production Runtime Environment
 # ===================================================
 FROM node:20-slim AS runner
 WORKDIR /app
@@ -32,14 +42,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends default-mysql-c
 COPY --from=cpp-builder /app/engine/bin/indexer_engine /app/engine/bin/indexer_engine
 RUN chmod +x /app/engine/bin/indexer_engine
 
-# Setup backend
+# Setup backend runtime with production dependencies
 WORKDIR /app/backend
 COPY backend/package*.json ./
 RUN npm install --omit=dev
-COPY backend/ ./
-RUN npm run build
 
-# Copy built frontend assets to be served by Express
+# Copy compiled backend dist and runtime assets
+COPY --from=backend-builder /app/backend/dist ./dist
+COPY backend/scripts ./scripts
+COPY backend/data ./data
+
+# Copy built frontend assets to be served statically by Express
 COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
 
 # Expose Render standard port
